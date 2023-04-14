@@ -44,7 +44,19 @@ namespace Test_sql_and_ef_queries_performance.Controllers
             }
 
 			sw.Stop();
-            return Ok($"Raw SQL query {sw.ElapsedMilliseconds} ms");
+			var rawQuery = $"Raw SQL query {sw.ElapsedMilliseconds} ms";
+
+			sw.Reset();
+			sw.Start();
+			for (int i = 0; i < Iterations; i++)
+			{
+				var customers = _context.Customers.Include(c => c.Orders).Select(c => new {c.Id, c.Name, orderCount = c.OrderCount }).ToList();
+			}
+			sw.Stop();
+
+			var EfQuery = $"Ef query {sw.ElapsedMilliseconds} ms";
+
+			return Ok(new { rawQuery = rawQuery, efQuery = EfQuery });
 		}
 	}
 }
